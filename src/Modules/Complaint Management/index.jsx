@@ -1,20 +1,14 @@
-import {
-  Button,
-  Container,
-  Flex,
-  Grid,
-  Loader,
-  Tabs,
-  Text,
-} from "@mantine/core";
+import { Button, Flex, Loader, Tabs, Text } from "@mantine/core";
 import { CaretCircleLeft, CaretCircleRight } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import CustomBreadcrumbs from "../../components/Breadcrumbs.jsx";
+
 import classes from "./ComplaintModule.module.css";
 
 // Import all the components here
 
 import ComplaintForm from "./components/ComplaintForm.jsx";
+import ResolvedComplaints from "./components/ResolvedComplaints.jsx";
 
 function ComplaintModuleLayout() {
   const [activeTab, setActiveTab] = useState("0");
@@ -47,11 +41,11 @@ function ComplaintModuleLayout() {
       case "0":
         return <ComplaintForm />;
       case "1":
-        return <p>Complaint History Content</p>;
+        return <p>Complaint History</p>;
       case "2":
-        return <p>Feedback Content</p>;
+        return <p>Feedback</p>;
       case "3":
-        return <p>Resolved Complaints Content</p>;
+        return <ResolvedComplaints />;
       case "4":
         return <p>Unresolved Complaints Content</p>;
       case "5":
@@ -118,9 +112,9 @@ function ComplaintModuleLayout() {
       {/* end */}
 
       {/* Main content */}
-      <Grid mt="xl">
-        <Container py="xl">{renderTabContent()}</Container>
-      </Grid>
+      <Flex direction="row" justify="start" align="start">
+        <div>{renderTabContent()}</div>
+      </Flex>
     </>
   );
 }
