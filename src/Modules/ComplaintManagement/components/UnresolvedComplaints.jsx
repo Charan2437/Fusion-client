@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   Button,
@@ -9,6 +9,7 @@ import {
   Paper,
   Card,
 } from "@mantine/core";
+import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
 import UnresCompDetails from "./UnresComp_Details.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
@@ -16,31 +17,38 @@ import UnresCompRedirect from "./UnresComp_Redirect.jsx";
 function UnresolvedComplaints() {
   const [activeComponent, setActiveComponent] = useState("list");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [complaints, setComplaints] = useState([]);
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
 
-  const complaints = [
-    {
-      id: 1,
-      studentId: "2205BCS06",
-      date: "XX/XX/20XX",
-      location: "C-111",
-      issue: "Not able to connect to internet because of fault in LAN port.",
-    },
-    {
-      id: 2,
-      studentId: "2205BCS06",
-      date: "XX/XX/20XX",
-      location: "C-112",
-      issue: "Wi-Fi connection dropping frequently.",
-    },
-    {
-      id: 3,
-      studentId: "2205BCS06",
-      date: "XX/XX/20XX",
-      location: "C-113",
-      issue: "Printer not working in the lab.",
-    },
-  ];
+  const role = useSelector((state) => state.user.role); // Get user role from Redux store
+  const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
+
+  // Determine the API URL based on user role
+  const url = role.includes("supervisor")
+    ? `${host}/complaint/supervisor/`
+    : role.includes("caretaker") || role.includes("convener")
+      ? `${host}/complaint/caretaker/`
+      : `${host}/complaint/user/`;
+
+  // Fetch unresolved complaints from the API based on role
+  useEffect(() => {
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${localStorage.getItem("authToken")}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Filter complaints that are unresolved (status !== 2 for unresolved complaints)
+        const unresolvedComplaints = data.filter(
+          (complaint) => complaint.status !== 2,
+        );
+        setComplaints(unresolvedComplaints);
+      })
+      .catch((error) => console.error("Error fetching complaints:", error));
+  }, [url]); // Re-fetch data when `url` changes
 
   const handleButtonClick = (component, complaint) => {
     setActiveComponent(component);
@@ -114,17 +122,22 @@ function UnresolvedComplaints() {
                       textAlign: "left",
                     }}
                   >
-                    Complaint Type
+                    {complaint.complaint_type}
                   </Badge>
                 </Flex>
 
-                <Text size="sm">Student: {complaint.studentId}</Text>
-                <Text size="sm">Date: {complaint.date}</Text>
-                <Text size="sm">Location: {complaint.location}</Text>
+                <Text size="sm">Student: {complaint.complainer}</Text>
+                <Text size="sm">
+                  Date:{" "}
+                  {new Date(complaint.complaint_date).toLocaleDateString()}
+                </Text>
+                <Text size="sm">
+                  Location: {complaint.location} ({complaint.specific_location})
+                </Text>
 
                 <Divider my="md" size="sm" />
 
-                <Text size="sm">{complaint.issue}</Text>
+                <Text size="sm">{complaint.details}</Text>
 
                 <Flex justify="flex-end" gap="sm" mt="md">
                   <Button

@@ -1,90 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Paper, Group, Badge } from "@mantine/core";
-import "../styles/ComplaintHistory.css"; // Import the updated CSS file
+import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
+import "../styles/ComplaintHistory.css";
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
 
 function ComplaintHistory() {
   const [activeTab, setActiveTab] = useState("pending");
+  const [complaints, setComplaints] = useState({
+    pending: [],
+    resolved: [],
+    declined: [],
+  });
 
-  const complaintsData = {
-    pending: [
-      {
-        date: "2024-10-01",
-        type: "Faulty Lan Port",
-        location: "Room no: C-111",
-        details:
-          "Not able to connect to the Internet because of a faulty LAN port.",
-      },
-      {
-        date: "2024-10-02",
-        type: "Power Issue",
-        location: "Room no: D-102",
-        details: "Power outage reported in the room.",
-      },
-      {
-        date: "2024-10-03",
-        type: "Water Leakage",
-        location: "Room no: E-210",
-        details: "Water leakage observed in bathroom.",
-      },
-      {
-        date: "2024-10-04",
-        type: "AC Malfunction",
-        location: "Room no: A-101",
-        details: "Air conditioner is not cooling properly.",
-      },
-      {
-        date: "2024-10-05",
-        type: "Internet Down",
-        location: "Room no: B-305",
-        details: "Unable to connect to the Internet for the past 3 days.",
-      },
-    ],
-    resolved: [
-      {
-        date: "2024-09-20",
-        type: "Noise Complaint",
-        location: "Room no: B-202",
-        details: "Resolved noise issue from the adjacent room.",
-      },
-    ],
-    declined: [
-      {
-        date: "2024-08-10",
-        type: "Internet Issue",
-        location: "Room no: E-310",
-        details: "Complaint declined due to insufficient information.",
-      },
-    ],
-  };
+  const role = useSelector((state) => state.user.role); // Get the user role from Redux
+  const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
 
-  const getComplaints = () => complaintsData[activeTab];
+  // Determine the API URL based on the user's role
+  const url = role.includes("supervisor")
+    ? `${host}/complaint/supervisor/`
+    : role.includes("caretaker") || role.includes("convener")
+      ? `${host}/complaint/caretaker/`
+      : `${host}/complaint/user/`;
+
+  useEffect(() => {
+    // Fetch complaints from the API
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${localStorage.getItem("authToken")}`, // Ensure the correct token is passed
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Log the fetched data to inspect its structure
+        console.log("Fetched complaints data:", data);
+
+        // Check if the data returned is an array, then filter by status
+        if (Array.isArray(data)) {
+          const pending = data.filter((c) => c.status === 0);
+          const resolved = data.filter((c) => c.status === 2);
+          const declined = data.filter((c) => c.status === 3);
+
+          setComplaints({ pending, resolved, declined });
+        } else {
+          console.error("Unexpected response format:", data);
+          // If the response is not an array, set empty complaints
+          setComplaints({ pending: [], resolved: [], declined: [] });
+        }
+      })
+      .catch((error) => console.error("Error fetching complaints:", error));
+  }, [url]); // Re-fetch complaints when the `url` changes
+
+  const getComplaints = () => complaints[activeTab];
 
   return (
     <div className="full-width-container">
       <div className="main-card-container" id="main-card">
         {/* Tab Menu */}
         <Group className="tab-menu" spacing="sm">
-          <button
-            className={`tab-item ${activeTab === "pending" ? "active-tab" : ""}`}
-            onClick={() => setActiveTab("pending")}
-          >
-            Pending Complaints
-          </button>
-          <button
-            className={`tab-item ${activeTab === "resolved" ? "active-tab" : ""}`}
-            onClick={() => setActiveTab("resolved")}
-          >
-            Resolved Complaints
-          </button>
-          <button
-            className={`tab-item ${activeTab === "declined" ? "active-tab" : ""}`}
-            onClick={() => setActiveTab("declined")}
-          >
-            Declined Complaints
-          </button>
+          {["pending", "resolved", "declined"].map((tab) => (
+            <button
+              key={tab}
+              className={`tab-item ${activeTab === tab ? "active-tab" : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
+            </button>
+          ))}
         </Group>
 
         {/* Complaint List */}
@@ -99,18 +89,18 @@ function ComplaintHistory() {
               className="complaint-subcard"
               withBorder
             >
-              {/* Complaint Header */}
               <div className="complaint-header">
-                <span>{complaint.type}</span>
-                <Badge className="complaint-type-badge">{complaint.type}</Badge>
+                <span>{complaint.complaint_type}</span>
+                <Badge className="complaint-type-badge">
+                  {complaint.complaint_type}
+                </Badge>
 
-                {/* Status Icon based on Tab */}
                 {activeTab === "pending" && (
                   <button
                     className="status-icon-button"
                     onClick={() => console.log("Navigate to details page")}
                     aria-label="Details"
-                    style={{ background: "none", border: "none", padding: 0 }} // Remove button styles
+                    style={{ background: "none", border: "none", padding: 0 }}
                   >
                     <img
                       src={detailIcon}
@@ -119,7 +109,6 @@ function ComplaintHistory() {
                     />
                   </button>
                 )}
-
                 {activeTab === "resolved" && (
                   <img
                     src={resolvedIcon}
@@ -136,26 +125,28 @@ function ComplaintHistory() {
                 )}
               </div>
 
-              {/* Complaint Details */}
               <div className="complaint-detail">
                 <b>Date: </b>
-                <span id="content">{complaint.date}</span>
+                <span id="content">
+                  {new Date(complaint.complaint_date).toLocaleDateString()}
+                </span>
               </div>
               <div className="complaint-detail">
                 <b>Location: </b> <span id="content">{complaint.location}</span>
               </div>
               <div className="complaint-detail">
-                <b>Complaint: </b>
-                <span id="content">{complaint.details.split(".")[0]}</span>
+                <b>Details: </b>
+                <span id="content">{complaint.details}</span>
               </div>
 
-              {/* Horizontal rule */}
               <div id="hr">
                 <hr />
               </div>
 
-              {/* Full complaint description */}
-              <div className="complaint-detail">{complaint.details}</div>
+              <div className="complaint-detail">
+                <b>Remarks: </b>
+                <span id="content">{complaint.remarks}</span>
+              </div>
             </Paper>
           ))}
         </div>
