@@ -1,64 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Loader, Center, Paper, Grid, Text } from "@mantine/core";
+import axios from "axios";
 import FeedbackForm from "./FeedbackForm";
 import FeedbackList from "./FeedbackList";
 
 function Feedback() {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const token = localStorage.getItem("authToken");
+  const host = "http://127.0.0.1:8000";
+  const [complaints, setComplaints] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  const complaints = [
-    {
-      Id: "500",
-      Type: "Internet",
-      Date: "Sept. 3, 2024, 10:30 a.m.",
-      Finish: "Sept. 4, 2024, 10:30 a.m.",
-      Location: "G111 Panini Block B",
-      SpecificLocation: "Room 101",
-      Description: "LAN port not working",
-      Comment: "Fixed",
-    },
-    {
-      Id: "501",
-      Type: "Electrical",
-      Date: "Sept. 3, 2024, 10:30 a.m.",
-      Finish: "Sept. 4, 2024, 10:30 a.m.",
-      Location: "G111 Panini Block B",
-      SpecificLocation: "Room 102",
-      Description: "Fan not working",
-      Comment: "Fixed",
-    },
-    {
-      Id: "502",
-      Type: "Carpenter",
-      Date: "Sept. 3, 2024, 10:30 a.m.",
-      Finish: "Sept. 4, 2024, 10:30 a.m.",
-      Location: "G111 Panini Block B",
-      SpecificLocation: "Room 103",
-      Description: "Door not closing properly",
-      Comment: "Fixed",
-    },
-    {
-      Id: "503",
-      Type: "Plumber",
-      Date: "Sept. 3, 2024, 10:30 a.m.",
-      Finish: "Sept. 4, 2024, 10:30 a.m.",
-      Location: "G111 Panini Block B",
-      SpecificLocation: "Room 104",
-      Description: "Tap not working",
-      Comment: "Fixed",
-    },
-    {
-      Id: "504",
-      Type: "Garbage",
-      Date: "Sept. 3, 2024, 10:30 a.m.",
-      Finish: "Sept. 4, 2024, 10:30 a.m.",
-      Location: "G111 Panini Block B",
-      SpecificLocation: "Room 105",
-      Description: "Garbage not collected",
-      Comment: "Fixed",
-    },
-  ];
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${host}/complaint/user/`, {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+
+        console.log("Complaints fetched:", response.data);
+        setComplaints(response.data);
+        setIsError(false);
+      } catch (error) {
+        console.error("Error fetching complaints:", error);
+        setIsError(true);
+      }
+      setIsLoading(false);
+    };
+
+    fetchComplaints();
+  }, [selectedComplaint]);
 
   const renderFormTabContent = () => {
+    if (isLoading) {
+      return (
+        <Center>
+          <Loader size="xl" variant="bars" />
+        </Center>
+      );
+    }
+
+    if (isError || complaints.length === 0) {
+      return (
+        <Center>
+          {isError ? (
+            <Text color="Red">
+              Failed to fetch complaints. Please try again.
+            </Text>
+          ) : (
+            <Text>No resolved complaints available</Text>
+          )}
+        </Center>
+      );
+    }
+
     if (selectedComplaint == null) {
       return (
         <FeedbackList
@@ -76,7 +75,27 @@ function Feedback() {
     );
   };
 
-  return <div>{renderFormTabContent()}</div>;
+  return (
+    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
+      <Paper
+        radius="md"
+        px="lg"
+        pt="sm"
+        pb="xl"
+        style={{
+          borderLeft: "0.6rem solid #15ABFF",
+          width: "70vw",
+          minHeight: "45vh",
+          maxHeight: "70vh",
+        }}
+        withBorder
+        maw="1240px"
+        backgroundColor="white"
+      >
+        {renderFormTabContent()}
+      </Paper>
+    </Grid>
+  );
 }
 
 export default Feedback;

@@ -1,6 +1,6 @@
-// ComplaintForm.jsx
 import React, { useState } from "react";
-import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
+import axios from "axios";
 import {
   Paper,
   TextInput,
@@ -14,27 +14,81 @@ import {
   Group,
 } from "@mantine/core";
 
-function ComplaintForm({ onSubmit }) {
+function ComplaintForm() {
+  const host = "http://127.0.0.1:8000";
+  const role = useSelector((state) => state.user.role);
   const [complaintType, setComplaintType] = useState("");
   const [location, setLocation] = useState("");
   const [specificLocation, setSpecificLocation] = useState("");
   const [complaintDetails, setComplaintDetails] = useState("");
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [key, setKey] = useState(0); // State to force re-render
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onSubmit({
-      complaintType,
-      location,
-      specificLocation,
-      complaintDetails,
-      file,
-    });
+  const resetFormFields = () => {
+    setComplaintType("");
+    setLocation("");
+    setSpecificLocation("");
+    setComplaintDetails("");
+    setFile(null);
+    setIsSuccess(false);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+    setIsSuccess(false);
+
+    const token = localStorage.getItem("authToken");
+
+    const url = role.includes("supervisor")
+      ? `${host}/complaint/supervisor/lodge/`
+      : role.includes("caretaker") || role.includes("convener")
+        ? `${host}/complaint/caretaker/lodge/`
+        : `${host}/complaint/user/`;
+
+    const formData = new FormData();
+    formData.append("complaint_type", complaintType);
+    formData.append("location", location);
+    formData.append("specific_location", specificLocation);
+    formData.append("details", complaintDetails);
+    if (file) {
+      formData.append("upload_complaint", file);
+    }
+
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+
+      setIsSuccess(true);
+      console.log("Complaint registered:", response.data);
+
+      setTimeout(() => {
+        resetFormFields();
+        setKey((prevKey) => prevKey + 1); // Change the key to force re-render
+      }, 2000);
+    } catch (error) {
+      const errorResponse = error.response?.data || error.message;
+      setErrorMessage(
+        errorResponse.detail ||
+          "Error registering complaint. Please try again.",
+      );
+      console.error("Error registering complaint:", errorResponse);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Grid mt="xl" style={{ paddingLeft: "49px" }}>
       <Paper
+        key={key}
         radius="md"
         px="lg"
         pt="sm"
@@ -52,6 +106,13 @@ function ComplaintForm({ onSubmit }) {
         <Title order={3} mb="md">
           Add a new Complaint
         </Title>
+
+        {errorMessage && (
+          <Text color="red" mb="md">
+            {errorMessage}
+          </Text>
+        )}
+
         <form onSubmit={handleSubmit}>
           <Grid>
             <Grid.Col span={6}>
@@ -62,12 +123,12 @@ function ComplaintForm({ onSubmit }) {
                 onChange={setComplaintType}
                 data={[
                   "Electricity",
-                  "Carpenter",
-                  "Plumber",
-                  "Garbage",
-                  "Dustbin",
-                  "Internet",
-                  "Other",
+                  "carpenter",
+                  "plumber",
+                  "garbage",
+                  "dustbin",
+                  "internet",
+                  "other",
                 ]}
                 required
                 mb="md"
@@ -80,20 +141,20 @@ function ComplaintForm({ onSubmit }) {
                 value={location}
                 onChange={setLocation}
                 data={[
-                  "H1",
-                  "H3",
-                  "H4",
-                  "PA",
-                  "PB",
-                  "PC",
-                  "Nagarjuna",
-                  "Maa Saraswati",
+                  "hall-1",
+                  "hall-3",
+                  "hall-4",
+                  "library",
+                  "computer center",
+                  "core_lab",
                   "LHTC",
-                  "Core Lab",
-                  "CC1",
-                  "CC2",
-                  "Rewa Residency",
                   "NR2",
+                  "NR3",
+                  "Admin building",
+                  "Rewa_Residency",
+                  "Maa Saraswati Hostel",
+                  "Nagarjun Hostel",
+                  "Panini Hostel",
                 ]}
                 required
                 mb="md"
@@ -125,17 +186,22 @@ function ComplaintForm({ onSubmit }) {
           />
           <Group position="right" mt="lg">
             <Text size="sm" color="dimmed" align="right">
-              Complaint will be registered with your User ID: 22BCS197
+              Complaint will be registered with your User ID.
             </Text>
           </Group>
           <Group position="right" mt="xs">
             <Button
               type="submit"
-              style={{ width: "150px" }}
+              style={{
+                width: "150px",
+                backgroundColor: isSuccess ? "#2BB673" : undefined,
+                color: isSuccess ? "black" : "white",
+              }}
               variant="filled"
               color="blue"
+              loading={loading}
             >
-              Submit
+              {loading ? "Loading..." : isSuccess ? "Submitted" : "Submit"}
             </Button>
           </Group>
         </form>
@@ -143,9 +209,5 @@ function ComplaintForm({ onSubmit }) {
     </Grid>
   );
 }
-
-ComplaintForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
 
 export default ComplaintForm;
