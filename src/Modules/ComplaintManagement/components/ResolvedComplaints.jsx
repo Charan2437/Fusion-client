@@ -1,49 +1,34 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Card,
-  Text,
-  Divider,
-  Container,
-  Group,
-  Paper,
-  Button,
-  Center,
-  Loader,
-} from "@mantine/core";
+import React, { useState } from "react";
+import { Card, Text, Divider, Group, Grid, Paper, Button } from "@mantine/core";
 import PropTypes from "prop-types";
 
+// Sample data for resolved complaints
+const resolvedComplaints = [
+  {
+    id: 1,
+    studentId: "22BCS106",
+    date: "XXX/XX/20XX",
+    location: "C-111",
+    type: "Network Issue",
+    description:
+      "Not able to connect to internet because of Fault in Lan port.",
+    feedback: "Resolved quickly, thanks!",
+  },
+  {
+    id: 2,
+    studentId: "22BCS107",
+    date: "XXX/XX/20XX",
+    location: "C-112",
+    type: "Electricity Issue",
+    description: "Light bulb not working in room.",
+    feedback: "Issue fixed, great service!",
+  },
+  // Add more hardcoded complaints here
+];
+
 function ResolvedComplaints() {
-  const token = localStorage.getItem("authToken");
-  const host = "http://127.0.0.1:8000";
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [viewFeedback, setViewFeedback] = useState(false);
-  const [resolvedComplaints, setResolvedComplaints] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-
-  useEffect(() => {
-    const fetchComplaints = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`${host}/complaint/caretaker/`, {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-
-        console.log("Complaints fetched:", response.data);
-        setResolvedComplaints(response.data);
-        setIsError(false);
-      } catch (error) {
-        console.error("Error fetching complaints:", error);
-        setIsError(true);
-      }
-      setIsLoading(false);
-    };
-
-    fetchComplaints();
-  }, []);
 
   const handleDetailsClick = (complaint) => {
     setSelectedComplaint(complaint);
@@ -60,48 +45,29 @@ function ResolvedComplaints() {
     setViewFeedback(false);
   };
 
-  const formatDateTime = (datetimeStr) => {
-    const date = new Date(datetimeStr);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-
-    return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
-  };
-
   return (
-    <Container>
-      {!selectedComplaint ? (
-        <Paper
-          radius="md"
-          px="lg"
-          pt="sm"
-          pb="xl"
-          style={{
-            borderLeft: "0.6rem solid #15ABFF",
-            width: "70vw",
-            minHeight: "45vh",
-            maxHeight: "70vh",
-            overflow: "hidden",
-          }}
-          withBorder
-          maw="1240px"
-          backgroundColor="white"
-        >
-          {isLoading || isError ? (
-            <Center>
-              {isLoading ? (
-                <Loader size="xl" variant="bars" />
-              ) : (
-                <Text color="Red">
-                  Failed to fetch complaints. Please try again.
-                </Text>
-              )}
-            </Center>
-          ) : (
-            <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
+    <Grid mt="xl" style={{ paddingLeft: "49px", marginBottom: 0 }}>
+      <Grid.Col span={12}>
+        {!selectedComplaint ? (
+          <Paper
+            radius="md"
+            px="lg"
+            pt="sm"
+            pb="xl"
+            style={{
+              borderLeft: "0.6rem solid #15ABFF",
+              width: "60vw",
+              minHeight: "45vh",
+              maxHeight: "70vh",
+              overflow: "hidden",
+              marginTop: "-7px",
+              marginLeft: "-7.5px",
+            }}
+            withBorder
+            maw="1240px"
+            backgroundColor="white"
+          >
+            <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
               {resolvedComplaints.map((complaint) => (
                 <Card
                   shadow="sm"
@@ -112,20 +78,18 @@ function ResolvedComplaints() {
                   key={complaint.id}
                 >
                   <Group position="apart">
-                    <Text weight={500}>Complaint id: {complaint.id}</Text>
-                    <Text>{complaint.complaint_type}</Text>
+                    <Text weight={500}>Complaint</Text>
+                    <Text>{complaint.type}</Text>
                   </Group>
                   <Divider my="sm" />
                   <Text>
-                    <strong>Complainer id:</strong> {complaint.complainer}
+                    <strong>Student:</strong> {complaint.studentId}
                   </Text>
                   <Text>
-                    <strong>Date:</strong>{" "}
-                    {formatDateTime(complaint.complaint_date)}
+                    <strong>Date:</strong> {complaint.date}
                   </Text>
                   <Text>
-                    <strong>Location:</strong> {complaint.location} (
-                    {complaint.specific_location})
+                    <strong>Location:</strong> {complaint.location}
                   </Text>
                   <Text mt="md">{complaint.description}</Text>
                   <Divider my="sm" />
@@ -146,20 +110,20 @@ function ResolvedComplaints() {
                 </Card>
               ))}
             </div>
-          )}
-        </Paper>
-      ) : viewFeedback ? (
-        <FeedbackDetails
-          complaint={selectedComplaint}
-          onBack={handleBackClick}
-        />
-      ) : (
-        <ComplaintDetails
-          complaint={selectedComplaint}
-          onBack={handleBackClick}
-        />
-      )}
-    </Container>
+          </Paper>
+        ) : viewFeedback ? (
+          <FeedbackDetails
+            complaint={selectedComplaint}
+            onBack={handleBackClick}
+          />
+        ) : (
+          <ComplaintDetails
+            complaint={selectedComplaint}
+            onBack={handleBackClick}
+          />
+        )}
+      </Grid.Col>
+    </Grid>
   );
 }
 
@@ -172,7 +136,7 @@ function ComplaintDetails({ complaint, onBack }) {
       pb="xl"
       style={{
         borderLeft: "0.6rem solid #15ABFF",
-        width: "70vw",
+        width: "60vw",
         minHeight: "45vh",
         maxHeight: "70vh",
         overflow: "hidden",
@@ -182,35 +146,42 @@ function ComplaintDetails({ complaint, onBack }) {
       maw="1240px"
       backgroundColor="white"
     >
-      <Container size="md" style={{ marginTop: "20px" }}>
+      <div style={{ marginTop: "10px" }}>
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Text weight={700} size="lg" mb="md">
             Detail
           </Text>
           <Divider my="sm" />
-          {/* <Text weight={600} mt="md">
-            Complainer Details: {complaint.details}
+          <Text weight={600} mt="md">
+            Complainer Details:
           </Text>
           <Text italic>
             Complainer: <strong>{complaint.studentId}</strong>
-          </Text> */}
-          <Text>Complainer ID: {complaint.complainer}</Text>
+          </Text>
+          <Text>
+            Complainer ID: <strong>{complaint.studentId}</strong>
+          </Text>
           <Divider my="sm" />
           <Text weight={600} mt="md">
             Complaint Details:
           </Text>
-          <Text>Complaint ID: {complaint.id}</Text>
-          <Text>Complaint Type: {complaint.complaint_type}</Text>
-          <Text>Complaint Details: {complaint.details}</Text>
+          <Text>
+            Complaint ID: <strong>{complaint.id}</strong>
+          </Text>
+          <Text color="red">
+            Complaint Details: <strong>{complaint.type}</strong>
+          </Text>
           <Divider my="sm" />
-          <Text>View Attachment: No Attachment available</Text>
+          <Text>
+            View Attachment: <strong>No Attachment available</strong>
+          </Text>
           <Group position="right" mt="lg">
             <Button variant="outline" color="blue" onClick={onBack}>
               Back
             </Button>
           </Group>
         </Card>
-      </Container>
+      </div>
     </Paper>
   );
 }
@@ -224,7 +195,7 @@ function FeedbackDetails({ complaint, onBack }) {
       pb="xl"
       style={{
         borderLeft: "0.6rem solid #15ABFF",
-        width: "70vw",
+        width: "60vw",
         minHeight: "45vh",
         maxHeight: "70vh",
         overflow: "hidden",
@@ -234,7 +205,7 @@ function FeedbackDetails({ complaint, onBack }) {
       maw="1240px"
       backgroundColor="white"
     >
-      <Container size="md" style={{ marginTop: "20px" }}>
+      <div style={{ marginTop: "10px" }}>
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Text weight={700} size="lg" mb="md">
             Feedback
@@ -243,13 +214,22 @@ function FeedbackDetails({ complaint, onBack }) {
           <Text weight={600} mt="md">
             Complainer Details:
           </Text>
-          <Text>Complainer ID: {complaint.complainer}</Text>
+          <Text italic>
+            Complainer: <strong>{complaint.studentId}</strong>
+          </Text>
+          <Text>
+            Complainer ID: <strong>{complaint.studentId}</strong>
+          </Text>
           <Divider my="sm" />
           <Text weight={600} mt="md">
             Complaint Details:
           </Text>
-          <Text>Complaint ID: {complaint.id}</Text>
-          <Text>Complaint Type: {complaint.complaint_type}</Text>
+          <Text>
+            Complaint ID: <strong>{complaint.id}</strong>
+          </Text>
+          <Text>
+            Complaint Type: <strong>{complaint.type}</strong>
+          </Text>
           <Divider my="sm" />
           <Text>
             Feedback:{" "}
@@ -261,7 +241,7 @@ function FeedbackDetails({ complaint, onBack }) {
             </Button>
           </Group>
         </Card>
-      </Container>
+      </div>
     </Paper>
   );
 }
@@ -270,16 +250,12 @@ function FeedbackDetails({ complaint, onBack }) {
 ComplaintDetails.propTypes = {
   complaint: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    complaint_type: PropTypes.string.isRequired,
-    complaint_date: PropTypes.string.isRequired,
-    complaint_finish: PropTypes.string,
+    studentId: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
-    specific_location: PropTypes.string.isRequired,
-    details: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    feedback: PropTypes.string,
-    comment: PropTypes.string,
-    complainer: PropTypes.string,
+    type: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    feedback: PropTypes.string.isRequired,
   }).isRequired,
   onBack: PropTypes.func.isRequired,
 };
@@ -288,16 +264,12 @@ ComplaintDetails.propTypes = {
 FeedbackDetails.propTypes = {
   complaint: PropTypes.shape({
     id: PropTypes.number.isRequired,
-    complaint_type: PropTypes.string.isRequired,
-    complaint_date: PropTypes.string.isRequired,
-    complaint_finish: PropTypes.string,
+    studentId: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
-    specific_location: PropTypes.string.isRequired,
-    details: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    feedback: PropTypes.string,
-    comment: PropTypes.string,
-    complainer: PropTypes.string,
+    type: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    feedback: PropTypes.string.isRequired,
   }).isRequired,
   onBack: PropTypes.func.isRequired,
 };

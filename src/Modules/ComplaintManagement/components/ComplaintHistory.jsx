@@ -1,205 +1,197 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Paper,
   Group,
   Badge,
-  Title,
   Text,
+  Divider,
   Button,
+  Stack,
   Grid,
-  Center,
-  Loader,
+  Title,
+  ScrollArea,
 } from "@mantine/core";
-import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
-import "../styles/ComplaintHistory.css";
 import detailIcon from "../../../assets/detail.png";
 import declinedIcon from "../../../assets/declined.png";
 import resolvedIcon from "../../../assets/resolved.png";
 
 function ComplaintHistory() {
   const [activeTab, setActiveTab] = useState("pending");
-  const [complaints, setComplaints] = useState({
-    pending: [],
-    resolved: [],
-    declined: [],
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
 
-  const role = useSelector((state) => state.user.role); // Get the user role from Redux
-  const host = "http://127.0.0.1:8000"; // Replace with your backend host if necessary
-
-  // Determine the API URL based on the user's role
-  const url = role.includes("supervisor")
-    ? `${host}/complaint/supervisor/`
-    : role.includes("caretaker") || role.includes("convener")
-      ? `${host}/complaint/caretaker/`
-      : `${host}/complaint/user/`;
-
-  useEffect(() => {
-    // Fetch complaints from the API
-    setIsLoading(true);
-    setIsError(false); // Reset error state before fetching
-    fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${localStorage.getItem("authToken")}`, // Ensure the correct token is passed
+  const complaintsData = {
+    pending: [
+      {
+        date: "2024-10-01",
+        type: "Faulty Lan Port",
+        location: "Room no: C-111",
+        details:
+          "Not able to connect to the Internet because of a faulty LAN port.",
       },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Check if the data returned is an array, then filter by status
-        if (Array.isArray(data)) {
-          const pending = data.filter((c) => c.status === 0);
-          const resolved = data.filter((c) => c.status === 2);
-          const declined = data.filter((c) => c.status === 3);
+      {
+        date: "2024-10-02",
+        type: "Power Issue",
+        location: "Room no: D-102",
+        details: "Power outage reported in the room.",
+      },
+      {
+        date: "2024-10-03",
+        type: "Water Leakage",
+        location: "Room no: E-210",
+        details: "Water leakage observed in bathroom.",
+      },
+      {
+        date: "2024-10-04",
+        type: "AC Malfunction",
+        location: "Room no: A-101",
+        details: "Air conditioner is not cooling properly.",
+      },
+      {
+        date: "2024-10-05",
+        type: "Internet Down",
+        location: "Room no: B-305",
+        details: "Unable to connect to the Internet for the past 3 days.",
+      },
+    ],
+    resolved: [
+      {
+        date: "2024-09-20",
+        type: "Noise Complaint",
+        location: "Room no: B-202",
+        details: "Resolved noise issue from the adjacent room.",
+      },
+    ],
+    declined: [
+      {
+        date: "2024-08-10",
+        type: "Internet Issue",
+        location: "Room no: E-310",
+        details: "Complaint declined due to insufficient information.",
+      },
+    ],
+  };
 
-          setComplaints({ pending, resolved, declined });
-        } else {
-          console.error("Unexpected response format:", data);
-          // If the response is not an array, set empty complaints
-          setComplaints({ pending: [], resolved: [], declined: [] });
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching complaints:", error);
-        setIsError(true);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [url]); // Re-fetch complaints when the `url` changes
-
-  const getComplaints = () => complaints[activeTab];
+  const getComplaints = () => complaintsData[activeTab];
 
   return (
-    <Grid mt="xl" style={{ paddingLeft: "49px" }}>
-      <Paper
-        radius="md"
-        px="lg"
-        pt="sm"
-        pb="xl"
-        style={{
-          borderLeft: "0.6rem solid #15ABFF",
-          width: "60vw",
-          backgroundColor: "white",
-          minHeight: "45vh",
-          maxHeight: "70vh",
-        }}
-        withBorder
-        maw="1240px"
-      >
-        <Title order={3} mb="md">
-          Complaint History
-        </Title>
+    <Grid mt="xl" justify="left" style={{ paddingLeft: "49px" }}>
+      <Grid.Col span={8}>
+        <Paper
+          padding="lg"
+          shadow="sm"
+          withBorder
+          style={{
+            borderLeft: "0.6rem solid #15ABFF",
+            backgroundColor: "white",
+            width: "60vw",
+            maxWidth: "1240px",
+            maxHeight: "66vh",
+            marginTop: "-7px",
+            marginLeft: "-7.5px",
+            padding: "12px", // Added padding of 10px
+          }}
+        >
+          <Title order={3} mb="md">
+            Complaint History
+          </Title>
 
-        {/* Tab Menu */}
-        <Group spacing="sm" mb="md">
-          {["pending", "resolved", "declined"].map((tab) => (
+          {/* Tab Menu */}
+          <Group spacing="sm" mb="md">
             <Button
-              key={tab}
-              variant={activeTab === tab ? "filled" : "outline"}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                width: "150px",
-                backgroundColor: activeTab === tab ? "#15ABFF" : "white",
-                color: activeTab === tab ? "white" : "black",
-              }}
+              variant={activeTab === "pending" ? "filled" : "outline"}
+              onClick={() => setActiveTab("pending")}
             >
-              {`${tab.charAt(0).toUpperCase() + tab.slice(1)} Complaints`}
+              Pending Complaints
             </Button>
-          ))}
-        </Group>
+            <Button
+              variant={activeTab === "resolved" ? "filled" : "outline"}
+              onClick={() => setActiveTab("resolved")}
+            >
+              Resolved Complaints
+            </Button>
+            <Button
+              variant={activeTab === "declined" ? "filled" : "outline"}
+              onClick={() => setActiveTab("declined")}
+            >
+              Declined Complaints
+            </Button>
+          </Group>
 
-        {/* Complaint List */}
-        <div className="inner-card-content">
-          {isLoading ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Loader size="xl" variant="bars" />
-            </Center>
-          ) : isError ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Text color="red">
-                Failed to fetch complaints. Please try again.
-              </Text>
-            </Center>
-          ) : getComplaints().length === 0 ? (
-            <Center style={{ minHeight: "45vh" }}>
-              <Text>No {activeTab} complaints available.</Text>
-            </Center>
-          ) : (
-            getComplaints().map((complaint, index) => (
-              <Paper
-                key={index}
-                radius="md"
-                px="lg"
-                pt="sm"
-                pb="xl"
-                style={{
-                  borderLeft: "0.4rem solid #15ABFF",
-                  marginBottom: "1rem",
-                }}
-                withBorder
-              >
-                <div className="complaint-header">
-                  <Title order={5}>{complaint.complaint_type}</Title>
-                  <Badge color="blue" size="lg">
-                    {complaint.complaint_type}
-                  </Badge>
-
-                  {activeTab === "pending" && (
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      onClick={() => console.log("Navigate to details page")}
-                      leftIcon={<img src={detailIcon} alt="Details" />}
+          {/* Scrollable Complaint List */}
+          <ScrollArea style={{ height: "50vh", padding: "10px" }}>
+            <Stack spacing="sm">
+              {getComplaints().map((complaint, index) => (
+                <Paper
+                  key={index}
+                  padding="md"
+                  shadow="xs"
+                  withBorder
+                  style={{ padding: "10px" }}
+                >
+                  {/* Complaint Header */}
+                  <Group position="apart" align="center">
+                    <Text weight={500}>{complaint.type}</Text>
+                    <Badge
+                      color={
+                        activeTab === "pending"
+                          ? "yellow"
+                          : activeTab === "resolved"
+                            ? "green"
+                            : "red"
+                      }
                     >
-                      Details
-                    </Button>
-                  )}
-                  {activeTab === "resolved" && (
-                    <img
-                      src={resolvedIcon}
-                      alt="Resolved"
-                      className="status-icon"
-                    />
-                  )}
-                  {activeTab === "declined" && (
-                    <img
-                      src={declinedIcon}
-                      alt="Declined"
-                      className="status-icon"
-                    />
-                  )}
-                </div>
+                      {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                    </Badge>
+                    {activeTab === "pending" && (
+                      <Button
+                        variant="subtle"
+                        onClick={() => console.log("Navigate to details page")}
+                        aria-label="Details"
+                      >
+                        <img
+                          src={detailIcon}
+                          alt="Details"
+                          style={{ width: "24px" }}
+                        />
+                      </Button>
+                    )}
+                    {activeTab === "resolved" && (
+                      <img
+                        src={resolvedIcon}
+                        alt="Resolved"
+                        style={{ width: "24px" }}
+                      />
+                    )}
+                    {activeTab === "declined" && (
+                      <img
+                        src={declinedIcon}
+                        alt="Declined"
+                        style={{ width: "24px" }}
+                      />
+                    )}
+                  </Group>
 
-                <Text>
-                  <b>Date:</b>{" "}
-                  {new Date(complaint.complaint_date).toLocaleDateString()}
-                </Text>
-                <Text>
-                  <b>Location:</b> {complaint.location}
-                </Text>
-                <Text>
-                  <b>Details:</b> {complaint.details}
-                </Text>
+                  {/* Complaint Details */}
+                  <Text mt="sm">
+                    <b>Date:</b> {complaint.date}
+                  </Text>
+                  <Text>
+                    <b>Location:</b> {complaint.location}
+                  </Text>
+                  <Text>
+                    <b>Complaint:</b> {complaint.details.split(".")[0]}
+                  </Text>
 
-                <hr />
+                  {/* Horizontal rule */}
+                  <Divider my="md" />
 
-                <Text>
-                  <b>Remarks:</b> {complaint.remarks}
-                </Text>
-              </Paper>
-            ))
-          )}
-        </div>
-      </Paper>
+                  {/* Full complaint description */}
+                  <Text>{complaint.details}</Text>
+                </Paper>
+              ))}
+            </Stack>
+          </ScrollArea>
+        </Paper>
+      </Grid.Col>
     </Grid>
   );
 }
