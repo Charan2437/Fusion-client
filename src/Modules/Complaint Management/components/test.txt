@@ -1,0 +1,21 @@
+<Grid mt="xl" style={{paddingLeft: '49px'}}>
+        {/* <Container py="xl" width='100%'> */}
+          <Paper
+            radius="md"
+            px="lg"
+            pt="sm"
+            pb="xl"
+            style={{
+              borderLeft: "0.6rem solid #15ABFF",
+              width: "70vw",
+              // minHeight: "45vh",
+              // maxHeight: "60vh",
+            }}
+            withBorder
+            maw="1240px"
+            backgroundColor="white"
+          >
+            {renderTabContent()}
+          </Paper>
+        {/* </Container> */}
+      </Grid>
