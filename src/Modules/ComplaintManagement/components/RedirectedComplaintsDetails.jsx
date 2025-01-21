@@ -1,8 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types"; // Import PropTypes for validation
-import { Text, Button, Flex, Grid } from "@mantine/core";
+import { Text, Button, Flex, Grid, useMantineTheme } from "@mantine/core";
 
 function RedirectedComplaintsDetails({ complaint, onBack }) {
+  const theme = useMantineTheme();
+
   if (!complaint) return null;
 
   const formatDateTime = (datetimeStr) => {
@@ -17,45 +19,68 @@ function RedirectedComplaintsDetails({ complaint, onBack }) {
   };
 
   return (
-    <Grid.Col style={{ height: "100%" }}>
-      {" "}
-      <Flex
-        direction="column"
-        justify="space-between"
-        style={{ height: "100%" }}
+    <Grid
+      style={{
+        height: "100%",
+        padding: theme.spacing.md,
+      }}
+    >
+      <Grid.Col
+        span={12}
+        md={8}
+        lg={6}
+        style={{
+          margin: "0 auto",
+          maxWidth: "100%",
+        }}
       >
-        <Flex direction="column" style={{ flexGrow: 1 }}>
-          <Text size="lg" weight="bold">
-            {" "}
-            Complaint Details
-          </Text>
-          <Text size="sm">
-            <strong>Complainer ID:</strong> {complaint.complainer}
-          </Text>
-          <Text size="sm">
-            <strong>Complaint ID:</strong> 007
-          </Text>
-          <Text size="sm">
-            <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
-          </Text>
-          <Text size="sm">
-            <strong>Location:</strong> {complaint.location} (
-            {complaint.specific_location})
-          </Text>
-          <Text size="sm">
-            <strong>Issue:</strong> {complaint.details}
-          </Text>
-        </Flex>
+        <Flex
+          direction="column"
+          justify="space-between"
+          style={{
+            height: "100%",
+            gap: theme.spacing.md,
+          }}
+        >
+          {/* Complaint Details Section */}
+          <Flex direction="column" style={{ flexGrow: 1, gap: theme.spacing.xs }}>
+            <Text size="lg" weight="bold">
+              Complaint Details
+            </Text>
+            <Text size="sm">
+              <strong>Complainer ID:</strong> {complaint.complainer}
+            </Text>
+            <Text size="sm">
+              <strong>Complaint ID:</strong> {complaint.id}
+            </Text>
+            <Text size="sm">
+              <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
+            </Text>
+            <Text size="sm">
+              <strong>Location:</strong> {complaint.location} (
+              {complaint.specific_location})
+            </Text>
+            <Text size="sm">
+              <strong>Issue:</strong> {complaint.details}
+            </Text>
+          </Flex>
 
-        {/* Flex container for the buttons, anchored at the bottom */}
-        <Flex justify="flex-end" mt="xl">
-          {" "}
-          <Button variant="outline" size="md" onClick={onBack}>
-            BACK
-          </Button>
+          {/* Action Buttons Section */}
+          <Flex justify="flex-end" mt="xl" style={{ gap: theme.spacing.sm }}>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={onBack}
+              style={{
+                flexShrink: 0,
+              }}
+            >
+              BACK
+            </Button>
+          </Flex>
         </Flex>
-      </Flex>
-    </Grid.Col>
+      </Grid.Col>
+    </Grid>
   );
 }
 

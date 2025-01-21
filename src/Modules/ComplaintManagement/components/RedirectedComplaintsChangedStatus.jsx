@@ -1,4 +1,11 @@
-import { Textarea, Text, Button, Flex, Select } from "@mantine/core";
+import {
+  Textarea,
+  Text,
+  Button,
+  Flex,
+  Select,
+  useMantineTheme,
+} from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { updateComplaintStatus } from "../routes/api"; // Adjust the relative path as necessary
@@ -6,6 +13,7 @@ import { updateComplaintStatus } from "../routes/api"; // Adjust the relative pa
 function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
   const [status, setStatus] = useState("");
   const [comments, setComments] = useState("");
+  const theme = useMantineTheme();
 
   if (!complaint) return null;
 
@@ -64,8 +72,17 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
   };
 
   return (
-    <Flex direction="column" gap="xs" style={{ width: "100%" }}>
-      <Text size="24px" weight="bold">
+    <Flex
+      direction="column"
+      gap="xs"
+      style={{
+        width: "100%",
+        maxWidth: "600px",
+        margin: "0 auto",
+        padding: theme.spacing.md,
+      }}
+    >
+      <Text size="24px" weight="bold" align="center">
         Change Status
       </Text>
 
@@ -83,8 +100,8 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
         <strong>Issue:</strong> {complaint.details}
       </Text>
 
-      <Flex direction="column">
-        <Text size="14px" mt="1rem">
+      <Flex direction="column" mt="md" gap="sm">
+        <Text size="14px">
           Has the issue been resolved? (If you say no, the status of the
           complaint will automatically be set to "Declined".)
         </Text>
@@ -97,11 +114,10 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
           ]}
           value={status}
           onChange={handleStatusChange}
-          mt="1rem"
         />
       </Flex>
 
-      <Text size="14px" mt="1rem">
+      <Text size="14px" mt="md">
         Any Comments
       </Text>
       <Textarea
@@ -113,11 +129,19 @@ function RedirectedComplaintsChangeStatus({ complaint, onBack }) {
         maxRows={4}
       />
 
-      <Flex justify="flex-end" gap="sm" mt="md">
-        <Button variant="outline" onClick={onBack}>
+      <Flex justify="space-between" mt="lg" gap="sm" wrap="wrap">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          style={{ flex: "1 1 auto", minWidth: "120px" }}
+        >
           Back
         </Button>
-        <Button variant="outline" onClick={handleSubmit}>
+        <Button
+          variant="outline"
+          onClick={handleSubmit}
+          style={{ flex: "1 1 auto", minWidth: "120px" }}
+        >
           Submit
         </Button>
       </Flex>

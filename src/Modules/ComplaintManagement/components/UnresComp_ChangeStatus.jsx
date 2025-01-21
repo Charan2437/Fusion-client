@@ -1,11 +1,13 @@
 import { Textarea, Text, Button, Flex, Grid, Select } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { updateComplaintStatus } from "../routes/api"; // Import API function
+import { useMediaQuery } from "@mantine/hooks"; // Import for responsiveness
+import { updateComplaintStatus } from "../routes/api";
 
 function UnresComp_ChangeStatus({ complaint, onBack }) {
   const [status, setStatus] = useState("");
   const [comments, setComments] = useState("");
+  const isSmallScreen = useMediaQuery("(max-width: 768px)"); // Detect screen size
 
   if (!complaint) return null;
 
@@ -29,7 +31,7 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
       const response = await updateComplaintStatus(
         complaint.id,
         { yesorno: status, comment: comments },
-        token,
+        token
       );
 
       if (response.success) {
@@ -41,7 +43,7 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
     } catch (error) {
       console.error(
         "Error resolving the complaint:",
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       alert("There was an issue submitting your response. Please try again.");
     }
@@ -59,22 +61,27 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
   };
 
   return (
-    <Grid.Col>
-      <Text size="lg" weight="bold">
+    <Grid.Col
+      style={{
+        padding: isSmallScreen ? "1rem" : "2rem",
+        fontSize: isSmallScreen ? "14px" : "16px",
+      }}
+    >
+      <Text size={isSmallScreen ? "md" : "lg"} weight="bold">
         Change Status
       </Text>
 
-      <Text size="sm" mt="1rem">
+      <Text size={isSmallScreen ? "xs" : "sm"} mt="1rem">
         <strong>Complainer ID:</strong> {complaint.complainer}
       </Text>
-      <Text size="sm">
+      <Text size={isSmallScreen ? "xs" : "sm"}>
         <strong>Date:</strong> {formatDateTime(complaint.complaint_date)}
       </Text>
-      <Text size="sm">
+      <Text size={isSmallScreen ? "xs" : "sm"}>
         <strong>Location:</strong> {complaint.specific_location},{" "}
         {complaint.location}
       </Text>
-      <Text size="sm">
+      <Text size={isSmallScreen ? "xs" : "sm"}>
         <strong>Issue:</strong> {complaint.details}
       </Text>
 
@@ -106,11 +113,20 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
         mt="1rem"
       />
 
-      <Flex justify="flex-end" mt="md" gap="xs">
-        <Button variant="outline" onClick={onBack}>
+      <Flex
+        justify={isSmallScreen ? "center" : "flex-end"}
+        direction={isSmallScreen ? "column" : "row"}
+        mt="md"
+        gap="xs"
+      >
+        <Button variant="outline" onClick={onBack} style={{ width: isSmallScreen ? "100%" : "auto" }}>
           BACK
         </Button>
-        <Button variant="outline" onClick={handleSubmit}>
+        <Button
+          variant="outline"
+          onClick={handleSubmit}
+          style={{ width: isSmallScreen ? "100%" : "auto" }}
+        >
           Submit
         </Button>
       </Flex>

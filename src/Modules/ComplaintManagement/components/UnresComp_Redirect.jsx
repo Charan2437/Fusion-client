@@ -1,17 +1,18 @@
 import { Button, Text, Flex } from "@mantine/core";
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { forwardComplaint } from "../routes/api"; // Import the forwarding function
+import { useMediaQuery } from "@mantine/hooks"; // Import for responsive behavior
+import { forwardComplaint } from "../routes/api";
 
 function UnresComp_Redirect({ complaint, onBack, onForward }) {
   const [isForwarded, setIsForwarded] = useState(false);
-  const [noFiles, setNoFiles] = useState(false); // Track if files are missing
+  const [noFiles, setNoFiles] = useState(false);
+  const isSmallScreen = useMediaQuery("(max-width: 768px)"); // Detect small screens
 
   if (!complaint) return null;
 
   const token = localStorage.getItem("authToken");
 
-  // Function to handle forwarding the complaint
   const handleForward = async () => {
     try {
       const response = await forwardComplaint(complaint.id, token);
@@ -37,44 +38,54 @@ function UnresComp_Redirect({ complaint, onBack, onForward }) {
   };
 
   return (
-    <Flex direction="column" gap="xs">
-      <Text size="24px" weight="bold">
+    <Flex
+      direction="column"
+      gap="xs"
+      style={{
+        padding: isSmallScreen ? "1rem" : "2rem",
+        fontSize: isSmallScreen ? "14px" : "16px",
+      }}
+    >
+      <Text size={isSmallScreen ? "20px" : "24px"} weight="bold">
         Redirect
       </Text>
-      <Text mb="1rem" size="14px">
+      <Text mb="1rem" size={isSmallScreen ? "12px" : "14px"}>
         If you want to redirect this complaint, you can pass this complaint to
         specific Incharge.
       </Text>
 
-      <Text size="14px" weight={500}>
+      <Text size={isSmallScreen ? "12px" : "14px"} weight={500}>
         <strong>Complainer ID:</strong> {complaint.complainer}
       </Text>
-      <Text size="14px">
+      <Text size={isSmallScreen ? "12px" : "14px"}>
         <strong>Complaint ID:</strong> {complaint.id}
       </Text>
-      <Text size="14px">
+      <Text size={isSmallScreen ? "12px" : "14px"}>
         <strong>Complaint Type:</strong>{" "}
         {complaint.complaint_type.toUpperCase()}
       </Text>
-      <Text size="14px" mb="1rem">
+      <Text size={isSmallScreen ? "12px" : "14px"} mb="1rem">
         <strong>Location:</strong>{" "}
         {`${complaint.location}, ${complaint.specific_location}`}
       </Text>
 
-      <Flex direction="row" justify="flex-end" gap="sm">
+      <Flex
+        direction={isSmallScreen ? "column" : "row"}
+        justify="flex-end"
+        align={isSmallScreen ? "stretch" : "center"}
+        gap="sm"
+      >
         <Button variant="outline" color="blue" onClick={onBack}>
           BACK
         </Button>
         {isForwarded ? (
-          noFiles ? (
-            <Text size="md" weight={500}>
-              Redirected (No files attached)
-            </Text> // Show if forwarded but no files
-          ) : (
-            <Text size="md" weight={500}>
-              Redirected
-            </Text>
-          )
+          <Text
+            size="md"
+            weight={500}
+            align={isSmallScreen ? "center" : "left"}
+          >
+            {noFiles ? "Redirected (No files attached)" : "Redirected"}
+          </Text>
         ) : (
           <Button variant="outline" onClick={handleForward}>
             FORWARD
