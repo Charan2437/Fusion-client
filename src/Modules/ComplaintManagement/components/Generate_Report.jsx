@@ -353,7 +353,7 @@ function GenerateReport() {
       <div className="filter-card-container mt-5">
         <h2>Filters</h2>
 
-        {role.includes("supervisor") && (
+        {role.includes("service_provider") && (
           <>
             <div className="filter-label" style={{ fontWeight: "bold" }}>
               Location

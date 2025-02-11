@@ -108,7 +108,7 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
 
       <Flex justify="flex-end" mt="md" gap="xs">
         <Button variant="outline" onClick={onBack}>
-          BACK
+          Back
         </Button>
         <Button variant="outline" onClick={handleSubmit}>
           Submit

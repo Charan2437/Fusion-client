@@ -127,7 +127,7 @@ function ComplaintDetails({ complaintId, onBack }) {
           </Flex>
         </Grid.Col>
       </Grid>
-      <Flex direction="row" gap="xs" align="center">
+      <Flex direction="row" gap="xs" align="center" wrap="wrap">
         <Text size="14px" style={{ fontWeight: "bold" }}>
           View attachment:
         </Text>

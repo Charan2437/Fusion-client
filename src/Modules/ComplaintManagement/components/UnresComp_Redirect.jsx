@@ -63,7 +63,7 @@ function UnresComp_Redirect({ complaint, onBack, onForward }) {
 
       <Flex direction="row" justify="flex-end" gap="sm">
         <Button variant="outline" color="blue" onClick={onBack}>
-          BACK
+          Back
         </Button>
         {isForwarded ? (
           noFiles ? (
@@ -77,7 +77,7 @@ function UnresComp_Redirect({ complaint, onBack, onForward }) {
           )
         ) : (
           <Button variant="outline" onClick={handleForward}>
-            FORWARD
+            Forward
           </Button>
         )}
       </Flex>
