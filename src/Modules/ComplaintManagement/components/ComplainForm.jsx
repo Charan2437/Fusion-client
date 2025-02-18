@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { useMediaQuery } from "@mantine/hooks";
 import {
   Flex,
   Paper,
@@ -98,10 +99,12 @@ function ComplaintForm() {
     setLoading(false);
   };
 
+  const isSmallScreen = useMediaQuery("(max-width: 768px)");
+
   return (
     <Grid
       mt="xl"
-      style={{ paddingInline: "49px", width: "100%" }}
+      style={{ width: "100%", paddingLeft: "49px" }}
       sx={(theme) => ({
         [theme.fn.smallerThan("sm")]: {
           paddingInline: theme.spacing.md,
@@ -119,7 +122,8 @@ function ComplaintForm() {
           backgroundColor: "white",
           minHeight: "45vh",
           maxHeight: "70vh",
-          width: "70vw",
+          width: isSmallScreen ? "100%" : "70vw",
+          overflowY: "auto",
         }}
         withBorder
         sx={(theme) => ({

@@ -10,9 +10,10 @@ import {
   Grid,
   Flex,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import PropTypes from "prop-types";
 import ComplaintDetails from "./ComplaintDetails";
-import { getComplaintsByRole } from "../routes/api"; // Import the API function
+import { getComplaintsByRole } from "../routes/api";
 
 function ResolvedComplaints() {
   const token = localStorage.getItem("authToken");
@@ -72,8 +73,10 @@ function ResolvedComplaints() {
     return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
   };
 
+  const isScreenSmall = useMediaQuery("(max-width: 768px)");
+
   return (
-    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
+    <Grid mt="xl" style={{ paddingLeft: "49px", width: "100%" }}>
       <Paper
         radius="md"
         px="lg"
@@ -81,10 +84,12 @@ function ResolvedComplaints() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          backgroundColor: "white", // Ensure backgroundColor is set here
           minHeight: "45vh",
           maxHeight: "70vh",
-          width: selectedComplaint || viewFeedback ? "70vw" : "100%",
+          width:
+            (selectedComplaint || viewFeedback) && !isScreenSmall
+              ? "70vw"
+              : "100%",
           overflow: "auto",
         }}
         withBorder
@@ -143,7 +148,12 @@ function ResolvedComplaints() {
                       </Text>
                     </Flex>
                     <Divider my="sm" />
-                    <Flex direction="row" justify="space-between">
+                    <Flex
+                      direction="row"
+                      justify="space-between"
+                      wrap="wrap"
+                      gap="xs"
+                    >
                       <Text size="14px">
                         <strong>Description:</strong> {complaint.details}
                       </Text>

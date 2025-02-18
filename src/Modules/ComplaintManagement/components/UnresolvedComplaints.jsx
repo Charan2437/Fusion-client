@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from "react";
 import {
-  Text, // For displaying text
-  Button, // For interactive buttons
-  Flex, // For flexible layout
-  Grid, // For grid-based layout
-  Divider, // For visual separation of content
-  Badge, // For status or metadata tags
-  Paper, // For card-like components
-  Loader, // For showing loading state
-  Center, // For centering content
+  Text,
+  Button,
+  Flex,
+  Grid,
+  Divider,
+  Badge,
+  Paper,
+  Loader,
+  Center,
 } from "@mantine/core";
-
-// Import useSelector to access the Redux store and retrieve the role of the user
-import { useSelector } from "react-redux"; // Import useSelector to get role from Redux
-
-// Import custom components for the application
+import { useMediaQuery } from "@mantine/hooks";
+import { useSelector } from "react-redux";
 import ComplaintDetails from "./ComplaintDetails.jsx";
 import UnresCompChangeStatus from "./UnresComp_ChangeStatus.jsx";
 import UnresCompRedirect from "./UnresComp_Redirect.jsx";
-
-// API utility for fetching complaints
-import { getComplaintsByRole } from "../routes/api"; // Import axios function
+import { getComplaintsByRole } from "../routes/api";
 
 function UnresolvedComplaints() {
   const [activeComponent, setActiveComponent] = useState("list");
@@ -29,11 +24,10 @@ function UnresolvedComplaints() {
   const [redirectedComplaints, setRedirectedComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const role = useSelector((state) => state.user.role); // Get user role from Redux store
+  const role = useSelector((state) => state.user.role);
 
-  const token = localStorage.getItem("authToken"); // Get token from localStorage
+  const token = localStorage.getItem("authToken");
 
-  // Fetch unresolved complaints from the API based on role
   useEffect(() => {
     const fetchComplaints = async () => {
       setIsLoading(true);
@@ -81,8 +75,10 @@ function UnresolvedComplaints() {
     return `${day}-${month}-${year}, ${hours}:${minutes}`; // Format: DD-MM-YYYY HH:MM
   };
 
+  const isScreenSmall = useMediaQuery("(max-width: 768px)");
+
   return (
-    <Grid mt="xl" style={{ paddingInline: "49px", width: "100%" }}>
+    <Grid mt="xl" style={{ paddingLeft: "49px", width: "100%" }}>
       <Paper
         radius="md"
         px="lg"
@@ -94,9 +90,10 @@ function UnresolvedComplaints() {
           minHeight: "45vh",
           maxHeight: "70vh",
           width:
-            activeComponent === "details" ||
-            activeComponent === "changeStatus" ||
-            activeComponent === "redirect"
+            (activeComponent === "details" ||
+              activeComponent === "changeStatus" ||
+              activeComponent === "redirect") &&
+            !isScreenSmall
               ? "70vw"
               : "100%",
           overflow: "auto",
@@ -149,8 +146,13 @@ function UnresolvedComplaints() {
                 withBorder
               >
                 <Flex direction="column" style={{ width: "100%" }}>
-                  <Flex direction="row" justify="space-between" align="center">
-                    <Flex direction="row" gap="xs" align="center">
+                  <Flex
+                    direction="row"
+                    justify="space-between"
+                    align="center"
+                    wrap="wrap"
+                  >
+                    <Flex direction="row" gap="xs" align="center" wrap="wrap">
                       <Text size="14px" style={{ fontWeight: "bold" }}>
                         Complaint Id: {complaint.id}
                       </Text>
@@ -187,11 +189,16 @@ function UnresolvedComplaints() {
                   </Flex>
                   <Divider my="sm" />
 
-                  <Flex direction="row" justify="space-between">
+                  <Flex
+                    direction="row"
+                    justify="space-between"
+                    wrap="wrap"
+                    gap="xs"
+                  >
                     <Text size="14px">
                       <strong>Description:</strong> {complaint.details}
                     </Text>
-                    <Flex gap="sm" ml="auto">
+                    <Flex ml="auto" wrap="wrap" gap="xs">
                       <Button
                         variant="outline"
                         size="xs"

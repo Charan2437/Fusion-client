@@ -31,11 +31,12 @@ const RedirectedComplaints = lazy(
 })();
 
 const TAB_CONFIGS = {
-  warden: [{ title: "Generate Report" }],
-  supervisor: [
+  supervisor: [{ title: "Generate Report" }],
+  service_provider: [
     { title: "Redirected Complaints" },
     { title: "Generate Report" },
   ],
+  service_authority: [{ title: "Generate Report" }],
   caretaker: [
     { title: "Lodge a Complaint" },
     { title: "Complaint History" },
@@ -86,8 +87,10 @@ function ComplaintModuleLayout() {
   const role = useSelector((state) => state.user.role);
 
   const tabItems = useMemo(() => {
-    if (role.includes("warden")) return TAB_CONFIGS.warden;
+    if (role.includes("complaint_admin")) return TAB_CONFIGS.complaint_admin;
     if (role.includes("supervisor")) return TAB_CONFIGS.supervisor;
+    if (role.includes("SP")) return TAB_CONFIGS.service_provider;
+    if (role.includes("SA")) return TAB_CONFIGS.service_authority;
     if (role.includes("caretaker") || role.includes("convener"))
       return TAB_CONFIGS.caretaker;
     return TAB_CONFIGS.default;
@@ -110,12 +113,18 @@ function ComplaintModuleLayout() {
 
   const tabContentMap = useMemo(
     () => ({
-      warden: {
+      complaint_admin: {
         0: <GenerateReport />,
       },
       supervisor: {
+        0: <GenerateReport />,
+      },
+      service_provider: {
         0: <RedirectedComplaints />,
         1: <GenerateReport />,
+      },
+      service_authority: {
+        0: <GenerateReport />,
       },
       caretaker: {
         0: <FormPage />,
@@ -136,10 +145,12 @@ function ComplaintModuleLayout() {
   const getTabContent = () => {
     let content;
 
-    if (role.includes("warden")) {
-      content = tabContentMap.warden[activeTab];
-    } else if (role.includes("supervisor")) {
+    if (role.includes("supervisor")) {
       content = tabContentMap.supervisor[activeTab];
+    } else if (role.includes("SP")) {
+      content = tabContentMap.service_provider[activeTab];
+    } else if (role.includes("SA")) {
+      content = tabContentMap.service_authority[activeTab];
     } else if (role.includes("caretaker") || role.includes("convener")) {
       content = tabContentMap.caretaker[activeTab];
     } else {
@@ -153,7 +164,13 @@ function ComplaintModuleLayout() {
     <div style={{ fontFamily: "Manrope" }}>
       <CustomBreadcrumbs />
       <Flex justify="space-between" align="center" mt="lg">
-        <Flex justify="flex-start" align="center" gap="1rem" mt="1.5rem">
+        <Flex
+          justify="flex-start"
+          align="center"
+          gap="1rem"
+          mt="1.5rem"
+          overflowX="auto"
+        >
           <NavigationButton
             direction="prev"
             onClick={() => handleTabChange("prev")}

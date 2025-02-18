@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 
 import { useSelector } from "react-redux";
-
+import { useMediaQuery } from "@mantine/hooks";
 import ComplaintDetails from "./ComplaintDetails";
 import { getComplaintsByRole } from "../routes/api";
 import detailIcon from "../../../assets/detail.png";
@@ -79,10 +79,12 @@ function ComplaintHistory() {
 
   const getBadgeColor = (tab) => (tab === "resolved" ? "green" : "blue");
 
+  const isScreenSmall = useMediaQuery("(max-width: 768px)");
+
   return (
     <Grid
       mt="xl"
-      style={{ width: "100%", paddingInline: "49px" }}
+      style={{ width: "100%", paddingLeft: "49px" }}
       sx={(theme) => ({
         [theme.fn.smallerThan("sm")]: { paddingInline: theme.spacing.md },
       })}
@@ -94,10 +96,10 @@ function ComplaintHistory() {
         pb="xl"
         style={{
           borderLeft: "0.6rem solid #15ABFF",
-          width: showDetails ? "70vw" : "100%",
+          width: showDetails && !isScreenSmall ? "70vw" : "100%",
           backgroundColor: "white",
           overflow: "hidden",
-          maxHeight: "65vh",
+          maxHeight: "70vh",
         }}
         withBorder
         sx={(theme) => ({
@@ -125,7 +127,7 @@ function ComplaintHistory() {
             >
               Complaint History
             </Title>
-            <Group spacing="sm" mb="md">
+            <Group spacing="sm" mb="md" overflowX="auto" wrap="nowrap">
               {TABS.map((tab) => (
                 <Button
                   key={tab}
@@ -174,8 +176,13 @@ function ComplaintHistory() {
                     withBorder
                   >
                     <Flex direction="column" style={{ width: "100%" }}>
-                      <Flex direction="row" justify="space-between">
-                        <Flex direction="row" gap="xs" align="center">
+                      <Flex direction="row" justify="space-between" wrap="wrap">
+                        <Flex
+                          direction="row"
+                          gap="xs"
+                          align="center"
+                          wrap="wrap"
+                        >
                           <Text fz="md" weight="bold">
                             Complaint Id: {c.id}
                           </Text>
@@ -214,6 +221,7 @@ function ComplaintHistory() {
                         direction="row"
                         justify="space-between"
                         align="center"
+                        wrap="wrap"
                       >
                         <Text fz="md">
                           <b>Description:</b> {c.details}
