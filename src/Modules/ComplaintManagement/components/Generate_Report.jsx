@@ -275,6 +275,7 @@ function GenerateReport() {
                           Complaint Id: {complaint.id}
                         </Text>
                         <Badge
+                          className="complaint-type-badge"
                           size="lg"
                           color={
                             displayedStatus === "Resolved" ? "green" : "blue"
@@ -285,36 +286,21 @@ function GenerateReport() {
                       </Flex>
                       {displayedStatus === "Resolved" ? (
                         <img
+                          className="status-icon resolved"
                           src={resolvedIcon}
                           alt="Resolved"
-                          style={{
-                            width: "35px",
-                            borderRadius: "50%",
-                            backgroundColor: "#2BB673",
-                            padding: "10px",
-                          }}
                         />
                       ) : displayedStatus === "Declined" ? (
                         <img
+                          className="status-icon declined"
                           src={declinedIcon}
                           alt="Declined"
-                          style={{
-                            width: "35px",
-                            borderRadius: "50%",
-                            backgroundColor: "#FF6B6B",
-                            padding: "10px",
-                          }}
                         />
                       ) : (
                         <img
+                          className="status-icon pending"
                           src={detailIcon}
                           alt="Pending"
-                          style={{
-                            width: "35px",
-                            borderRadius: "50%",
-                            backgroundColor: "#FF6B6B",
-                            padding: "10px",
-                          }}
                         />
                       )}
                     </Flex>
@@ -353,6 +339,22 @@ function GenerateReport() {
       <div className="filter-card-container mt-5">
         <h2>Filters</h2>
 
+        {role.includes("complaint_admin") && (
+          <>
+            <div className="filter-label" style={{ fontWeight: "bold" }}>
+              Location
+            </div>
+            <select name="location" onChange={handleFilterChange}>
+              <option value="">Select Location</option>
+              {locations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
         {role.includes("supervisor") && (
           <>
             <div className="filter-label" style={{ fontWeight: "bold" }}>
@@ -370,6 +372,23 @@ function GenerateReport() {
         )}
 
         {(role.includes("caretaker") || role.includes("convener")) && (
+          <>
+            <div className="filter-label" style={{ fontWeight: "bold" }}>
+              Complaint Type
+            </div>
+
+            <select name="complaintType" onChange={handleFilterChange}>
+              <option value="">Select Complaint Type</option>
+              {complaintTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+
+        {role.includes("warden") && (
           <>
             <div className="filter-label" style={{ fontWeight: "bold" }}>
               Complaint Type
