@@ -48,7 +48,11 @@ export const getComplaintsByRole = async (role, token) => {
     ? `${hostAdd}/complaint/supervisor/`
     : role.includes("caretaker") || role.includes("convener")
       ? `${hostAdd}/complaint/caretaker/`
-      : `${hostAdd}/complaint/user/`;
+      : role.includes("warden")
+        ? `${hostAdd}/complaint/warden/`
+        : role.includes("complaint_admin")
+          ? `${hostAdd}/complaint/complaint_admin/`
+          : `${hostAdd}/complaint/user/`;
 
   try {
     const response = await axios.get(url, {

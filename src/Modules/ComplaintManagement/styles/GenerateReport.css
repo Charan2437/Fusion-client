@@ -31,7 +31,7 @@ body, html {
 
 #main-card {
   border-left: 14px solid #15ABFF;
-  max-height: 900px; 
+  max-height: 900px;
   overflow: scroll;
 }
 
@@ -66,7 +66,7 @@ body, html {
   font-weight: bold;
 }
 
-#complaint-type-badge {
+.complaint-type-badge {
   background-color: #14abff;
   color: hsl(0, 0%, 100%);
   padding: 15px 25px;
@@ -74,7 +74,7 @@ body, html {
   font-size: 10px;
   font-weight: bold;
   margin-right: 10px;
-  width: 15vw;
+  width: 10vw; /* Adjusted width */
 }
 
 .filter-card-container label {
@@ -146,8 +146,22 @@ body, html {
 }
 
 .status-icon {
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.status-icon.resolved {
+  background-color: #2BB673;
+}
+
+.status-icon.declined {
+  background-color: #FF6B6B;
+}
+
+.status-icon.pending {
+  background-color: #FF6B6B;
 }
 
 .complaint-header {
@@ -157,10 +171,8 @@ body, html {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   display: inline-flex;
   flex-direction: row;
-  /*align-items: center;*/
   justify-content: space-between;
   width: 100%;
-
   margin-right: 0vw;
   margin-bottom: -22px;
 }
@@ -185,12 +197,74 @@ body, html {
 /* Responsive Design */
 @media (max-width: 768px) {
   .full-width-container {
-      padding-left: 49px;
-      flex-direction: column;
+    flex-direction: column;
+    align-items: center;
+    padding-left: 2vw;
+    padding-right: 2vw;
   }
 
   .main-card-container {
-      width: 100%;
-      margin-bottom: 20px;
+    width: 100%; /* Ensure complaint card takes full width */
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .filter-card-container {
+    width: 100%; /* Ensure filter card also takes full width */
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 20px; /* Adds space between main card and filter card */
+  }
+
+  .complaint-type-badge {
+    display: none;
+  }
+
+  .status-icon {
+    width: 24px;
+    height: 24px;
+    padding: 8px;
+  }
+
+  .complaint-header {
+    font-size: 17px;
+  }
+
+  .complaint-detail b {
+    font-size: 13px;
+  }
+
+  #content-generate {
+    font-size: 12px;
+  }
+
+  .details {
+    margin-top: -45px;
+    margin-bottom: -8px;
+  }
+
+  /* Ensure the main card takes the full width when stacked */
+  .full-width-container {
+    width: 100%;
+  }
+
+  .main-card-container {
+    width: 100%; /* Full width */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .full-width-container {
+    flex-direction: row; /* Keeps them side-by-side when width is larger than 768px */
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .main-card-container {
+    width: 60vw; /* Keeps the main card's width to 60% */
+  }
+
+  .filter-card-container {
+    width: 25vw; /* Keeps the filter card width at 25% */
   }
 }

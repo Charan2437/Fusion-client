@@ -31,6 +31,7 @@ const RedirectedComplaints = lazy(
 })();
 
 const TAB_CONFIGS = {
+  complaint_admin: [{ title: "Generate Report" }],
   warden: [{ title: "Generate Report" }],
   supervisor: [
     { title: "Redirected Complaints" },
@@ -86,6 +87,7 @@ function ComplaintModuleLayout() {
   const role = useSelector((state) => state.user.role);
 
   const tabItems = useMemo(() => {
+    if (role.includes("complaint_admin")) return TAB_CONFIGS.complaint_admin;
     if (role.includes("warden")) return TAB_CONFIGS.warden;
     if (role.includes("supervisor")) return TAB_CONFIGS.supervisor;
     if (role.includes("caretaker") || role.includes("convener"))
@@ -110,6 +112,9 @@ function ComplaintModuleLayout() {
 
   const tabContentMap = useMemo(
     () => ({
+      complaint_admin: {
+        0: <GenerateReport />,
+      },
       warden: {
         0: <GenerateReport />,
       },
@@ -137,6 +142,8 @@ function ComplaintModuleLayout() {
     let content;
 
     if (role.includes("warden")) {
+      content = tabContentMap.warden[activeTab];
+    } else if (role.includes("complaint_admin")) {
       content = tabContentMap.warden[activeTab];
     } else if (role.includes("supervisor")) {
       content = tabContentMap.supervisor[activeTab];
