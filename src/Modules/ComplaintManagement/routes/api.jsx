@@ -120,20 +120,40 @@ export const forwardComplaint = async (complaintId, token) => {
   }
 };
 
-// Function to update complaint status
-export const updateComplaintStatus = async (complaintId, data, token) => {
+// // Function to update complaint status
+// export const updateComplaintStatus = async (complaintId, data, token) => {
+//   const url = `${host}/complaint/caretaker/pending/${complaintId}/`;
+
+//   try {
+//     const response = await axios.post(url, data, {
+//       headers: {
+//         Authorization: `Token ${token}`,
+//       },
+//     });
+//     return { success: true, data: response.data };
+//   } catch (error) {
+//     const errorResponse = error.response?.data || error.message;
+//     return { success: false, error: errorResponse };
+//   }
+// };
+
+export const updateComplaintStatus = async (complaintId, formData, token) => {
+  console.log("Received Data in API Function:", formData);
+
   const url = `${host}/complaint/caretaker/pending/${complaintId}/`;
 
   try {
-    const response = await axios.post(url, data, {
+    const response = await axios.post(url, formData, {
       headers: {
         Authorization: `Token ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
+    console.log("API Response:", response.data);
     return { success: true, data: response.data };
   } catch (error) {
-    const errorResponse = error.response?.data || error.message;
-    return { success: false, error: errorResponse };
+    console.error("Error from API:", error.response?.data || error.message);
+    return { success: false, error: error.response?.data || error.message };
   }
 };
 

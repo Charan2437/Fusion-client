@@ -31,6 +31,7 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
   };
 
   const handleImageChange = (file) => {
+    console.log("Selected Image:", file);
     setImage(file);
   };
 
@@ -43,8 +44,12 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
     const formData = new FormData();
     formData.append("yesorno", status);
     formData.append("comment", comments);
+
     if (image) {
-      formData.append("image", image);
+      console.log("Image before sending:", image);
+      formData.append("upload_resolved", image);
+    } else {
+      console.log("No image selected before sending.");
     }
 
     try {
@@ -53,18 +58,9 @@ function UnresComp_ChangeStatus({ complaint, onBack }) {
         formData,
         token,
       );
-      if (response.success) {
-        alert("Thank you for resolving the complaint.");
-        onBack();
-      } else {
-        throw new Error(response.error || "Unknown error");
-      }
+      console.log("Response from API:", response);
     } catch (error) {
-      console.error(
-        "Error resolving the complaint:",
-        error.response ? error.response.data : error.message,
-      );
-      alert("There was an issue submitting your response. Please try again.");
+      console.error("Error submitting complaint status:", error);
     }
   };
 
